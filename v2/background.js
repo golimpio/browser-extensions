@@ -124,7 +124,7 @@ const server = async (silent = true) => {
     }
   });
   try {
-    const r = await fetch('http://ip-api.com/json');
+    const r = await fetch('https://ipinfo.io/json');
     const {timezone} = await r.json();
 
     if (!timezone) {
@@ -195,30 +195,3 @@ const onClicked = ({menuItemId}) => {
 };
 chrome.contextMenus.onClicked.addListener(onClicked);
 
-/* FAQs & Feedback */
-{
-  const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
-  if (navigator.webdriver !== true) {
-    const page = getManifest().homepage_url;
-    const {name, version} = getManifest();
-    const sv = (Date.now() / 60000).toFixed(0).slice(-3);
-    onInstalled.addListener(({reason, previousVersion}) => {
-      management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
-        'faqs': true,
-        'last-update': 0
-      }, prefs => {
-        if (reason === 'install' || (prefs.faqs && reason === 'update')) {
-          const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
-          if (doUpdate && previousVersion !== version) {
-            tabs.create({
-              url: page + '?type=' + reason + (previousVersion ? '&p=' + previousVersion : '') + '&version=' + version + '#' + sv,
-              active: reason === 'install'
-            });
-            storage.local.set({'last-update': Date.now()});
-          }
-        }
-      }));
-    });
-    setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
-  }
-}
