@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
-  "version": "0.4.8",
+  "version": "2.0.0",
+  "update_url": "https://golimpio.github.io/browser-extensions/spoof-timezone/update.xml",
   "name": "Spoof Timezone",
   "description": "Change the time zone setting for web pages in the browser to a randomly selected or user-specified time zone.",
   "permissions": [
@@ -39,7 +40,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "{55f61747-c3d3-4425-97f9-dfc19a0be23c}",
+      "id": "{f44d2a63-6d47-4db6-aac1-9db0ebf7f109}",
       "strict_min_version": "128.0",
       "data_collection_permissions": {
         "required": ["none"]

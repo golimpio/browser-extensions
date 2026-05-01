@@ -176,7 +176,7 @@ const uo = async () => {
   return prefs;
 };
 uo.engine = timeZone => {
-  const value = 'GMT' + uo.date.toLocaleString('en', {
+  const value = 'GMT' + new Date().toLocaleString('en', {
     timeZone,
     timeZoneName: 'longOffset'
   }).split('GMT')[1];
@@ -185,15 +185,22 @@ uo.engine = timeZone => {
     return 0;
   }
   const o = /(?<hh>[-+]\d{2}):(?<mm>\d{2})/.exec(value);
-  return Number(o.groups.hh) * 60 + Number(o.groups.mm);
+  const hh = Number(o.groups.hh);
+  const mm = Number(o.groups.mm);
+  return hh * 60 + (hh < 0 ? -mm : mm);
 };
-uo.date = new Date();
 
 once(uo);
 
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'update-offset') {
     uo();
+  }
+  else if (request.method === 'get-timezone-from-ip') {
+    fetchTimezoneFromIP()
+      .then(timezone => response({timezone}))
+      .catch(e => response({error: e.message}));
+    return true;
   }
   else if (request.method === 'get-offset') {
     try {
@@ -297,38 +304,37 @@ const onCommitted = ({url, tabId, frameId}) => {
 };
 chrome.webNavigation.onCommitted.addListener(onCommitted);
 
-const server = async (silent = true) => {
-  try {
-    let r;
-    const ipinfo = await fetch('https://ipinfo.io/json').catch(() => null);
-    if (ipinfo && ipinfo.ok) {
-      r = await ipinfo.json().catch(() => null);
-    }
-    if (!r || !r.timezone) {
-      const ipapi = await fetch('https://ipapi.co/timezone/').catch(() => null);
-      if (ipapi && ipapi.ok) {
-        const text = await ipapi.text().catch(() => null);
-        if (text) {
-          r = {timezone: text.trim()};
-        }
+const fetchTimezoneFromIP = async () => {
+  let r;
+  const ipinfo = await fetch('https://ipinfo.io/json').catch(() => null);
+  if (ipinfo && ipinfo.ok) {
+    r = await ipinfo.json().catch(() => null);
+  }
+  if (!r || !r.timezone) {
+    const ipapi = await fetch('https://ipapi.co/timezone/').catch(() => null);
+    if (ipapi && ipapi.ok) {
+      const text = await ipapi.text().catch(() => null);
+      if (text) {
+        r = {timezone: text.trim()};
       }
     }
-    const {timezone} = r || {};
+  }
+  const {timezone} = r || {};
+  if (!timezone) {
+    throw Error('cannot resolve timezone for your IP address. Use options page to set manually');
+  }
+  if (!Intl.supportedValuesOf('timeZone').includes(timezone)) {
+    throw Error('Unrecognized timezone received from IP service: ' + timezone);
+  }
+  return timezone;
+};
 
-    if (!timezone) {
-      throw Error('cannot resolve timezone for your IP address. Use options page to set manually');
-    }
-    if (!Intl.supportedValuesOf('timeZone').includes(timezone)) {
-      throw Error('Unrecognized timezone received from IP service: ' + timezone);
-    }
-
-    chrome.storage.local.get({
-      timezone: 'Etc/GMT'
-    }, prefs => {
+const server = async (silent = true) => {
+  try {
+    const timezone = await fetchTimezoneFromIP();
+    chrome.storage.local.get({timezone: 'Etc/GMT'}, prefs => {
       if (prefs.timezone !== timezone) {
-        chrome.storage.local.set({
-          timezone
-        }, () => {
+        chrome.storage.local.set({timezone}, () => {
           uo().then(({timezone, offset}) => notify('New Timezone: ' + timezone + ' (' + offset + ')'));
         });
       }

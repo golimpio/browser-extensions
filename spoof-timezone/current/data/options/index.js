@@ -1,5 +1,8 @@
 'use strict';
 
+document.getElementById('version-label').textContent =
+  'v' + chrome.runtime.getManifest().version;
+
 const offset = document.getElementById('offset');
 const user = document.getElementById('user');
 const toast = document.getElementById('toast');
@@ -187,6 +190,25 @@ document.addEventListener('submit', async e => {
     console.error(e);
     notify('Issue on "Scope" or "Whitelist" patterns - ' + e.message, 10000);
   }
+});
+
+// update once from IP — fetch only, preview in UI, user must click Save to apply
+document.getElementById('update-once').addEventListener('click', function () {
+  this.disabled = true;
+  this.textContent = 'Detecting…';
+  chrome.runtime.sendMessage({method: 'get-timezone-from-ip'}, result => {
+    this.disabled = false;
+    this.textContent = 'Update from IP once';
+    if (!result || result.error) {
+      notify((result && result.error) || 'Could not detect timezone from IP', 5000);
+      return;
+    }
+    const tz = result.timezone;
+    user.value = tz;
+    offset.value = tz;
+    user.dispatchEvent(new Event('input'));
+    updateDirtyState();
+  });
 });
 
 // reset

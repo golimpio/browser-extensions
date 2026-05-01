@@ -66,7 +66,8 @@
               <span class="toggle-track"><span class="toggle-thumb"></span></span>
               <span class="toggle-label">Automatically update timezone based on my IP address</span>
             </label>
-            <p class="hint ip-hint">When enabled, your IP address is sent to <strong>ipinfo.io</strong> and <strong>ipapi.co</strong> to determine your timezone. These are third-party services outside your control.</p>
+            <p class="hint ip-hint">When enabled, the same request runs automatically on each browser start. Your IP is sent to <strong>ipinfo.io</strong> and <strong>ipapi.co</strong> — third-party services outside your control.</p>
+            <p class="hint ip-hint"><button type="button" id="update-once" class="link-btn">Update from IP once</button></p>
           </div>
           <label class="toggle">
             <input type="checkbox" id="random">
@@ -109,6 +110,7 @@
 
     </div>
   </div>
+  <p class="version-label" id="version-label"></p>
   <script src="index.js"></script>
 </body>
 </html>

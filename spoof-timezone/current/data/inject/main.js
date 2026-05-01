@@ -67,7 +67,6 @@
   /* Date Spoofing */
   class SpoofDate extends Date {
     #ad; // adjusted date
-    #fixed = false;
 
     #sync() {
       if (isNaN(this)) {
@@ -86,8 +85,6 @@
       // we need to offset it to create correct time difference from current time.
       if (isNaN(this) === false) {
         if (isLocalDateArgs(args)) {
-          this.#fixed = true;
-
           const offset = (prefs.offset + super.getTimezoneOffset());
           this.setTime(this.getTime() - offset * 60 * 1000);
         }

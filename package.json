@@ -1,0 +1,20 @@
+{
+  "name": "browser-extensions",
+  "version": "0.0.0",
+  "description": "Internal browser extensions distribution and build pipeline",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build:chrome": "node scripts/build.js --chrome",
+    "release": "node scripts/release.js",
+    "clean": "node scripts/clean.js"
+  },
+  "devDependencies": {
+    "crx": "^5.0.1"
+  },
+  "license": "MPL-2.0"
+}
