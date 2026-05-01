@@ -6,22 +6,39 @@ Currently ships:
 
 - **Spoof Timezone** (`spoof-timezone/current/`) — fork of [webextension.org/spoof-timezone](https://webextension.org/listing/spoof-timezone.html). MV3, Chrome/Edge supported, Firefox 128+ source-compatible (build pipeline not yet wired up).
 
+## Extensions
+
+### Spoof Timezone
+
+| Field            | Value                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| Extension ID     | `gnadioobeeegopmcefjaldonfgbaopfh`                                                 |
+| Update URL       | `https://golimpio.github.io/browser-extensions/spoof-timezone/update.xml`          |
+| CRX URL          | `https://golimpio.github.io/browser-extensions/spoof-timezone/spoof-timezone.crx`  |
+| Source           | `spoof-timezone/current/`                                                          |
+| Signing key      | `~/.config/spoof-timezone/chrome.pem` (macOS/Linux) — backed up to vault           |
+
+The Extension ID is derived from the signing key and is stable across all builds
+as long as `chrome.pem` does not change.
+
 ## Build pipeline
 
-Cross-platform Node.js (>= 20). Same commands work on macOS, Windows, and Linux.
+Cross-platform Node.js (>= 20) + pnpm (>= 9). Same commands work on macOS, Windows, and Linux.
+
+If you don't have pnpm yet, install it once: `npm install -g pnpm` (or via Corepack: `corepack enable`).
 
 ```fish
 # install dependencies (one-off)
-npm install
+pnpm install
 
 # build CRX + update.xml into dist/
-npm run build
+pnpm build
 
 # build and stage into docs/ for GitHub Pages publishing
-npm run release
+pnpm release
 
 # remove dist/
-npm run clean
+pnpm clean
 ```
 
 ### Signing key
@@ -51,14 +68,14 @@ dist/
 └── update.xml            # gupdate manifest used by Chrome's auto-update
 ```
 
-`npm run release` also copies these two files to `docs/spoof-timezone/` so they're
+`pnpm release` also copies these two files to `docs/spoof-timezone/` so they're
 served by GitHub Pages when committed.
 
 ## Publishing flow
 
 1. Edit source under `spoof-timezone/current/`.
 2. Bump `version` in `spoof-timezone/current/manifest.json` (e.g. `2.0.0` → `2.0.1`).
-3. `npm run release`
+3. `pnpm release`
 4. Review the staged files in `docs/spoof-timezone/`.
 5. Commit and push:
 
