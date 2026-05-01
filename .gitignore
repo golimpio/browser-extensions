@@ -28,12 +28,17 @@ pnpm-debug.log*
 .yarn/
 .pnpm-store/
 
-# Build artefacts (CRX, XPI, ZIPs are produced by build scripts; do not commit)
+# Build artefacts (CRX, XPI, ZIPs are produced by build scripts; do not commit
+# from arbitrary locations — only the published copies under docs/ are tracked)
 dist/
 build/
 *.zip
 *.crx
 *.xpi
+
+# Allow the published copies under docs/ to be committed (served by GitHub Pages)
+!docs/**/*.crx
+!docs/**/*.xpi
 
 # Signing keys — NEVER commit these. Treat like SSH private keys.
 *.pem
