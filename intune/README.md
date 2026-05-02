@@ -30,7 +30,9 @@ The extension ID is stable — it is derived from the CRX signing key and does n
 
 No profile changes are needed for extension updates. Once deployed, the browser polls `update.xml` periodically and silently updates the extension when a new version is published. Intune is not involved in the update cycle after initial deployment.
 
-## Profile identifiers
+## Profile structure
+
+Uses `PayloadType: com.microsoft.Edge` and `PayloadType: com.google.Chrome` directly — the modern approach for Chromium-based browser policy delivery on macOS (Ventura+). The older `com.apple.ManagedClient.preferences` MCX-style wrapping is unreliable on modern macOS and should not be used.
 
 | Key | Value |
 |---|---|

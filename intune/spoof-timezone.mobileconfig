@@ -16,7 +16,7 @@
       <key>PayloadDisplayName</key>
       <string>Spoof Timezone - Microsoft Edge</string>
       <key>PayloadDescription</key>
-      <string>Force-installs the Spoof Timezone extension in Microsoft Edge</string>
+      <string>Force-installs the Spoof Timezone extension in Microsoft Edge on macOS.</string>
       <key>PayloadOrganization</key>
       <string>Dataworks Group</string>
       <key>PayloadEnabled</key>
@@ -38,6 +38,10 @@
                 <array>
                   <string>https://golimpio.github.io/*</string>
                 </array>
+                <key>ExtensionAllowedTypes</key>
+                <array>
+                  <string>extension</string>
+                </array>
               </dict>
             </dict>
           </array>
@@ -56,7 +60,7 @@
       <key>PayloadDisplayName</key>
       <string>Spoof Timezone - Google Chrome</string>
       <key>PayloadDescription</key>
-      <string>Force-installs the Spoof Timezone extension in Google Chrome</string>
+      <string>Force-installs the Spoof Timezone extension in Google Chrome on macOS.</string>
       <key>PayloadOrganization</key>
       <string>Dataworks Group</string>
       <key>PayloadEnabled</key>
@@ -74,9 +78,17 @@
                 <array>
                   <string>gnadioobeeegopmcefjaldonfgbaopfh;https://golimpio.github.io/browser-extensions/spoof-timezone/update.xml</string>
                 </array>
+                <key>ExtensionInstallAllowlist</key>
+                <array>
+                  <string>gnadioobeeegopmcefjaldonfgbaopfh</string>
+                </array>
                 <key>ExtensionInstallSources</key>
                 <array>
                   <string>https://golimpio.github.io/*</string>
+                </array>
+                <key>ExtensionAllowedTypes</key>
+                <array>
+                  <string>extension</string>
                 </array>
               </dict>
             </dict>
@@ -88,7 +100,7 @@
   <key>PayloadDisplayName</key>
   <string>Spoof Timezone Extension</string>
   <key>PayloadDescription</key>
-  <string>Force-installs the Spoof Timezone browser extension in Microsoft Edge and Google Chrome</string>
+  <string>Force-installs the Spoof Timezone browser extension in Microsoft Edge and Google Chrome on macOS.</string>
   <key>PayloadIdentifier</key>
   <string>com.dataworks.intune.spoof-timezone</string>
   <key>PayloadOrganization</key>
