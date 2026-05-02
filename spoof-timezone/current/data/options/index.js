@@ -218,6 +218,7 @@ document.getElementById('reset').addEventListener('click', () => {
   chrome.storage.local.set({
     timezone: 'Etc/GMT',
     offset: 0,
+    active: false,
     random: false,
     update: false,
     scope: ['*://*/*'],

@@ -55,6 +55,19 @@ const createIcon = (size, active) => {
   return ctx.getImageData(0, 0, size, size);
 };
 
+const formatOffsetLabel = offset => {
+  if (offset === 0) return 'GMT';
+  const h = Math.floor(Math.abs(offset) / 60);
+  const m = Math.abs(offset) % 60;
+  return 'GMT' + (offset > 0 ? '+' : '-') + h + (m !== 0 ? ':' + String(m).padStart(2, '0') : '');
+};
+
+const updateTitle = (active, timezone, offset) => {
+  const state = active ? 'ON' : 'OFF';
+  const label = formatOffsetLabel(offset);
+  chrome.action.setTitle({title: 'Timezone protection is ' + state + '\n' + timezone + ' (' + label + ')'});
+};
+
 const buildIconData = active => ({
   '16': createIcon(16, active),
   '32': createIcon(32, active),
@@ -93,7 +106,8 @@ engine.on = async () => {
     }]);
     chrome.action.setIcon({imageData: buildIconData(true)});
     chrome.action.setBadgeText({text: ''});
-    chrome.action.setTitle({title: 'Timezone protection is ON'});
+    const onPrefs = await chrome.storage.local.get({timezone: 'Etc/GMT', offset: 0});
+    updateTitle(true, onPrefs.timezone, onPrefs.offset);
   }
   catch (e) {
     console.error(e);
@@ -106,10 +120,11 @@ engine.on = async () => {
     });
   }
 };
-engine.off = () => {
+engine.off = async () => {
   chrome.scripting.unregisterContentScripts();
   chrome.action.setIcon({imageData: buildIconData(false)});
-  chrome.action.setTitle({title: 'Timezone protection is OFF'});
+  const offPrefs = await chrome.storage.local.get({timezone: 'Etc/GMT', offset: 0});
+  updateTitle(false, offPrefs.timezone, offPrefs.offset);
 };
 {
   const once = async () => {
@@ -118,7 +133,7 @@ engine.off = () => {
     }
     once.done = true;
     const prefs = await chrome.storage.local.get({
-      active: true
+      active: false
     });
     if (prefs.active) {
       engine.on();
@@ -170,9 +185,8 @@ const uo = async () => {
     notify(`Cannot detect offset for "${prefs.timezone}". Using 0 as offset`);
     console.error(e);
   }
-  chrome.action.setTitle({
-    title: chrome.runtime.getManifest().name + ' (' + prefs.timezone + ')'
-  });
+  const activePrefs = await chrome.storage.local.get({active: false});
+  updateTitle(activePrefs.active, prefs.timezone, prefs.offset);
   return prefs;
 };
 uo.engine = timeZone => {
@@ -363,7 +377,7 @@ once(async () => {
 
 /* context menu */
 once(async () => {
-  const prefs = await chrome.storage.local.get({active: true});
+  const prefs = await chrome.storage.local.get({active: false});
 
   chrome.contextMenus.create({
     id: 'toggle-active',
