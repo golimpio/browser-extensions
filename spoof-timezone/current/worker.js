@@ -79,7 +79,7 @@ engine.on = async () => {
   try {
     const prefs = await chrome.storage.local.get({
       scope: ['*://*/*'],
-      whitelist: ['*://challenges.cloudflare.com/*']
+      allowedSites: ['*://challenges.cloudflare.com/*']
     });
 
     await chrome.scripting.unregisterContentScripts();
@@ -88,7 +88,7 @@ engine.on = async () => {
       id: 'isolated-script',
       world: 'ISOLATED',
       matches: prefs.scope,
-      excludeMatches: prefs.whitelist,
+      excludeMatches: prefs.allowedSites,
       matchOriginAsFallback: true,
       allFrames: true,
       runAt: 'document_start',
@@ -98,7 +98,7 @@ engine.on = async () => {
       id: 'main-script',
       world: 'MAIN',
       matches: prefs.scope,
-      excludeMatches: prefs.whitelist,
+      excludeMatches: prefs.allowedSites,
       matchOriginAsFallback: true,
       allFrames: true,
       runAt: 'document_start',
@@ -157,9 +157,9 @@ chrome.storage.onChanged.addListener(async ps => {
       title: ps.active.newValue ? 'Turn Off Protection' : 'Turn On Protection'
     }, () => chrome.runtime.lastError);
   }
-  else if (ps.scope || ps.whitelist) {
+  else if (ps.scope || ps.allowedSites) {
     const prefs = await chrome.storage.local.get({
-      active: true
+      active: false
     });
     if (prefs.active) {
       engine.on();
@@ -396,7 +396,7 @@ once(async () => {
 
 chrome.contextMenus.onClicked.addListener(({menuItemId}) => {
   if (menuItemId === 'toggle-active') {
-    chrome.storage.local.get({active: true}, prefs => {
+    chrome.storage.local.get({active: false}, prefs => {
       chrome.storage.local.set({active: !prefs.active});
     });
   }

@@ -16,7 +16,7 @@ const captureSnapshot = () => ({
   random: document.getElementById('random').checked,
   update: document.getElementById('update').checked,
   scope: document.getElementById('scope').value,
-  whitelist: document.getElementById('whitelist').value
+  allowedSites: document.getElementById('allowed-sites').value
 });
 
 const updateDirtyState = () => {
@@ -27,7 +27,7 @@ const updateDirtyState = () => {
     cur.random !== snapshot.random ||
     cur.update !== snapshot.update ||
     cur.scope !== snapshot.scope ||
-    cur.whitelist !== snapshot.whitelist;
+    cur.allowedSites !== snapshot.allowedSites;
   pendingBanner.hidden = !dirty;
   saveBtn.disabled = !dirty;
 };
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     random: false,
     update: false,
     scope: ['*://*/*'],
-    whitelist: ['*://challenges.cloudflare.com/*'],
+    allowedSites: ['*://challenges.cloudflare.com/*'],
     famousTimeZones: [
       'Etc/GMT',
       'America/New_York',
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('random').checked = prefs.random;
   document.getElementById('update').checked = prefs.update;
   document.getElementById('scope').value = prefs.scope.join(', ');
-  document.getElementById('whitelist').value = prefs.whitelist.join(', ');
+  document.getElementById('allowed-sites').value = prefs.allowedSites.join(', ');
 
   snapshot = captureSnapshot();
   updateDirtyState();
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('random').addEventListener('change', updateDirtyState);
   document.getElementById('update').addEventListener('change', updateDirtyState);
   document.getElementById('scope').addEventListener('input', updateDirtyState);
-  document.getElementById('whitelist').addEventListener('input', updateDirtyState);
+  document.getElementById('allowed-sites').addEventListener('input', updateDirtyState);
 });
 
 offset.onchange = e => {
@@ -154,7 +154,7 @@ document.addEventListener('submit', async e => {
       scope.push('*://*/*');
     }
 
-    const whitelist = document.getElementById('whitelist').value.split(/\s*,\s*/).filter(a => a);
+    const allowedSites = document.getElementById('allowed-sites').value.split(/\s*,\s*/).filter(a => a);
 
     // Test scoping
     await chrome.scripting.unregisterContentScripts({
@@ -164,7 +164,7 @@ document.addEventListener('submit', async e => {
       id: 'test-script',
       world: 'ISOLATED',
       matches: scope,
-      excludeMatches: whitelist,
+      excludeMatches: allowedSites,
       js: ['/data/inject/test.js']
     }]);
     await chrome.scripting.unregisterContentScripts({
@@ -176,7 +176,7 @@ document.addEventListener('submit', async e => {
       random: document.getElementById('random').checked,
       update: document.getElementById('update').checked,
       scope,
-      whitelist
+      allowedSites
     }, () => {
       chrome.runtime.sendMessage({
         method: 'update-offset'
@@ -188,7 +188,7 @@ document.addEventListener('submit', async e => {
   }
   catch (e) {
     console.error(e);
-    notify('Issue on "Scope" or "Whitelist" patterns - ' + e.message, 10000);
+    notify('Issue on "Scope" or "Allowed Sites" patterns - ' + e.message, 10000);
   }
 });
 
@@ -221,8 +221,9 @@ document.getElementById('reset').addEventListener('click', () => {
     active: false,
     random: false,
     update: false,
+    theme: 'system',
     scope: ['*://*/*'],
-    whitelist: ['*://challenges.cloudflare.com/*']
+    allowedSites: ['*://challenges.cloudflare.com/*']
   }, () => {
     chrome.runtime.sendMessage({method: 'update-offset'});
     location.reload();
@@ -244,32 +245,31 @@ for (const a of [...document.querySelectorAll('[data-href]')]) {
   }
 }
 
-// theme switcher
-const applyTheme = theme => {
-  if (theme === 'system') {
-    document.documentElement.removeAttribute('data-theme');
-  }
-  else {
-    document.documentElement.setAttribute('data-theme', theme);
-  }
-  document.querySelectorAll('[data-theme-btn]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.themeBtn === theme);
-  });
+// protection toggle
+const protBtn   = document.getElementById('protection-btn');
+const protLabel = document.getElementById('protection-label');
+
+const setProtectionUI = active => {
+  protBtn.classList.toggle('active', active);
+  protLabel.classList.toggle('active', active);
+  protLabel.textContent = active ? 'On' : 'Off';
 };
 
-document.querySelectorAll('[data-theme-btn]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const theme = btn.dataset.themeBtn;
-    applyTheme(theme);
-    chrome.storage.local.set({theme});
-  });
+chrome.storage.local.get({active: false}, ({active}) => setProtectionUI(active));
+
+protBtn.addEventListener('click', () => {
+  const active = !protBtn.classList.contains('active');
+  chrome.storage.local.set({active});
+  setProtectionUI(active);
 });
 
-chrome.storage.local.get({theme: 'system'}, ({theme}) => applyTheme(theme));
-
-// reflect external timezone changes (e.g. from the map site) live on this page
+// keep in sync if toggled from popup while options page is open
+// also reflects external timezone/offset changes (e.g. from the map site)
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
+  if (changes.active) {
+    setProtectionUI(changes.active.newValue);
+  }
   if (changes.timezone) {
     const tz = changes.timezone.newValue;
     user.value = tz;
@@ -280,7 +280,44 @@ chrome.storage.onChanged.addListener((changes, area) => {
       updateDirtyState();
     }
   }
-  else if (changes.offset) {
+  if (changes.offset) {
     document.getElementById('minutes').value = changes.offset.newValue;
   }
 });
+
+// theme slider
+const themeTrack = document.querySelector('.theme-track');
+const themeOrder = ['light', 'system', 'dark'];
+
+const applyTheme = theme => {
+  if (theme === 'system') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  // drive thumb position via data attribute on the track element
+  themeTrack.dataset.themeState = theme;
+  // highlight active icon
+  document.querySelectorAll('.theme-icon').forEach(el => {
+    el.style.color = el.dataset.themeBtn === theme ? 'var(--accent)' : '';
+  });
+};
+
+const cycleTheme = () => {
+  const current = document.querySelector('.theme-track').dataset.themeState || 'system';
+  const next = themeOrder[(themeOrder.indexOf(current) + 1) % themeOrder.length];
+  applyTheme(next);
+  chrome.storage.local.set({theme: next});
+};
+
+themeTrack.addEventListener('click', cycleTheme);
+
+// clicking the icons jumps directly to that theme
+document.querySelectorAll('.theme-icon').forEach(el => {
+  el.addEventListener('click', () => {
+    applyTheme(el.dataset.themeBtn);
+    chrome.storage.local.set({theme: el.dataset.themeBtn});
+  });
+});
+
+chrome.storage.local.get({theme: 'system'}, ({theme}) => applyTheme(theme));

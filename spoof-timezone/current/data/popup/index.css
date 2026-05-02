@@ -40,6 +40,8 @@ body {
   width: 200px;
   display: flex;
   flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* Popup title */
@@ -49,7 +51,7 @@ body {
   text-align: center;
   color: var(--text-2);
   letter-spacing: 0.3px;
-  padding: 10px 12px 0;
+  padding: 14px 12px 0;
   text-transform: uppercase;
 }
 
@@ -99,13 +101,6 @@ button.power svg { fill: currentColor; }
 
 button.power.off .on { display: none; }
 button.power.on .off { display: none; }
-
-/* Divider */
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 0 12px;
-}
 
 /* Actions */
 .actions {
