@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.ManagedClient.preferences</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>com.dataworks.intune.spoof-timezone.edge</string>
+      <key>PayloadUUID</key>
+      <string>A1B2C3D4-E5F6-7890-ABCD-EF1234567890</string>
+      <key>PayloadDisplayName</key>
+      <string>Spoof Timezone - Microsoft Edge</string>
+      <key>PayloadDescription</key>
+      <string>Force-installs the Spoof Timezone extension in Microsoft Edge</string>
+      <key>PayloadOrganization</key>
+      <string>Dataworks Group</string>
+      <key>PayloadEnabled</key>
+      <true/>
+      <key>PayloadContent</key>
+      <dict>
+        <key>com.microsoft.Edge</key>
+        <dict>
+          <key>Forced</key>
+          <array>
+            <dict>
+              <key>mcx_preference_settings</key>
+              <dict>
+                <key>ExtensionInstallForcelist</key>
+                <array>
+                  <string>gnadioobeeegopmcefjaldonfgbaopfh;https://golimpio.github.io/browser-extensions/spoof-timezone/update.xml</string>
+                </array>
+                <key>ExtensionInstallSources</key>
+                <array>
+                  <string>https://golimpio.github.io/*</string>
+                </array>
+              </dict>
+            </dict>
+          </array>
+        </dict>
+      </dict>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.ManagedClient.preferences</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>com.dataworks.intune.spoof-timezone.chrome</string>
+      <key>PayloadUUID</key>
+      <string>B2C3D4E5-F6A7-8901-BCDE-F12345678901</string>
+      <key>PayloadDisplayName</key>
+      <string>Spoof Timezone - Google Chrome</string>
+      <key>PayloadDescription</key>
+      <string>Force-installs the Spoof Timezone extension in Google Chrome</string>
+      <key>PayloadOrganization</key>
+      <string>Dataworks Group</string>
+      <key>PayloadEnabled</key>
+      <true/>
+      <key>PayloadContent</key>
+      <dict>
+        <key>com.google.Chrome</key>
+        <dict>
+          <key>Forced</key>
+          <array>
+            <dict>
+              <key>mcx_preference_settings</key>
+              <dict>
+                <key>ExtensionInstallForcelist</key>
+                <array>
+                  <string>gnadioobeeegopmcefjaldonfgbaopfh;https://golimpio.github.io/browser-extensions/spoof-timezone/update.xml</string>
+                </array>
+                <key>ExtensionInstallSources</key>
+                <array>
+                  <string>https://golimpio.github.io/*</string>
+                </array>
+              </dict>
+            </dict>
+          </array>
+        </dict>
+      </dict>
+    </dict>
+  </array>
+  <key>PayloadDisplayName</key>
+  <string>Spoof Timezone Extension</string>
+  <key>PayloadDescription</key>
+  <string>Force-installs the Spoof Timezone browser extension in Microsoft Edge and Google Chrome</string>
+  <key>PayloadIdentifier</key>
+  <string>com.dataworks.intune.spoof-timezone</string>
+  <key>PayloadOrganization</key>
+  <string>Dataworks Group</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>C3D4E5F6-A7B8-9012-CDEF-123456789012</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
