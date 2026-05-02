@@ -7,7 +7,7 @@
 //
 // GitHub Pages should be configured to serve from main branch /docs folder.
 
-import { copyFile, mkdir, readFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,8 @@ import { spawnSync } from 'node:child_process';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot  = resolve(__dirname, '..');
 const distDir   = join(repoRoot, 'dist');
-const docsDir   = join(repoRoot, 'docs', 'spoof-timezone');
+const docsRoot  = join(repoRoot, 'docs');
+const docsDir   = join(docsRoot, 'spoof-timezone');
 
 const log = (...m) => console.log('[release]', ...m);
 const die = (msg) => { console.error('[release] ERROR:', msg); process.exit(1); };
@@ -41,6 +42,15 @@ if (!existsSync(crxSrc) || !existsSync(updateSrc)) {
 await mkdir(docsDir, { recursive: true });
 await copyFile(crxSrc,    join(docsDir, 'spoof-timezone.crx'));
 await copyFile(updateSrc, join(docsDir, 'update.xml'));
+
+// 3b. Ensure .nojekyll exists at docs/ root so GitHub Pages serves binary
+// files (.crx) verbatim instead of running them through Jekyll, which would
+// silently exclude unrecognised extensions.
+const nojekyllPath = join(docsRoot, '.nojekyll');
+if (!existsSync(nojekyllPath)) {
+  await writeFile(nojekyllPath, '');
+  log(`created ${nojekyllPath}`);
+}
 
 // 4. Read manifest for the user-facing summary
 const manifest = JSON.parse(await readFile(
